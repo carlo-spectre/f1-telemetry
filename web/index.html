@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F1 Race Replay</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0d0d0d;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      flex-wrap: wrap;
+    }
+    .top-bar label { display: flex; align-items: center; gap: 0.5rem; }
+    .top-bar select {
+      background: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      padding: 0.4rem 0.6rem;
+      border-radius: 4px;
+    }
+    .top-bar button {
+      background: #e10600;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .top-bar button:hover { background: #ff1a14; }
+    .top-bar button:disabled { background: #555; cursor: not-allowed; }
+    .main {
+      display: flex;
+      height: calc(100vh - 52px);
+    }
+    .canvas-wrap {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+    }
+    #replayCanvas {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+    .sidebar {
+      width: 260px;
+      background: #1a1a1a;
+      border-left: 1px solid #333;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    .sidebar h3 {
+      margin: 0 0 0.75rem 0;
+      font-size: 1rem;
+      color: #aaa;
+    }
+    .leaderboard {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .leaderboard li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 0.9rem;
+    }
+    .leaderboard .pos { width: 1.5rem; color: #888; }
+    .leaderboard .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .leaderboard .code { font-weight: 600; min-width: 3ch; }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .controls button {
+      background: #2a2a2a;
+      color: #e0e0e0;
+      border: 1px solid #444;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .controls button:hover { background: #333; }
+    .controls .speed {
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .session-title {
+      font-size: 0.95rem;
+      color: #ccc;
+      margin-bottom: 0.5rem;
+    }
+    .time-lap {
+      font-size: 0.85rem;
+      color: #888;
+    }
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 10;
+    }
+    .loading.hidden { display: none; }
+    .loading p { margin: 0; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">
+    <p>Loading session data…</p>
+  </div>
+  <div class="top-bar">
+    <label>Year: <select id="yearSelect"></select></label>
+    <label>Round: <select id="roundSelect"><option value="">--</option></select></label>
+    <label>Session: <select id="sessionSelect">
+      <option value="R">Race</option>
+      <option value="S">Sprint</option>
+    </select></label>
+    <button id="loadBtn">Load replay</button>
+  </div>
+  <div class="main">
+    <div class="canvas-wrap">
+      <canvas id="replayCanvas" width="1280" height="720"></canvas>
+    </div>
+    <div class="sidebar">
+      <div class="session-title" id="sessionTitle">Select a session and click Load replay</div>
+      <div class="time-lap" id="timeLap">--</div>
+      <h3>Leaderboard</h3>
+      <ul class="leaderboard" id="leaderboard"></ul>
+      <div class="controls">
+        <button id="playPause">Play</button>
+        <button id="speedDown">− Speed</button>
+        <span class="speed" id="speedLabel">1×</span>
+        <button id="speedUp">+ Speed</button>
+      </div>
+    </div>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
