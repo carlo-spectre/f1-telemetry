@@ -234,8 +234,12 @@
     }
     loadBtn.disabled = true;
     loadingEl.classList.remove("hidden");
+    const url = `/api/session?year=${year}&round_number=${round}&session_type=${sessionType}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5 * 60 * 1000); // 5 min
     try {
-      const res = await fetch(`/api/session?year=${year}&round_number=${round}&session_type=${sessionType}`);
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
         throw new Error(err.detail || res.statusText);
@@ -248,7 +252,12 @@
       sessionTitle.textContent = state.session.session_info.event_name + " – " + (sessionType === "S" ? "Sprint" : "Race");
       playPauseBtn.textContent = "Pause";
     } catch (e) {
-      alert("Failed to load session: " + e.message);
+      clearTimeout(timeoutId);
+      if (e.name === "AbortError") {
+        alert("Request timed out. The first load can take several minutes—try again or check the terminal for server progress.");
+      } else {
+        alert("Failed to load session: " + e.message);
+      }
     } finally {
       loadingEl.classList.add("hidden");
       loadBtn.disabled = false;
